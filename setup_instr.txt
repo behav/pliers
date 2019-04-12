@@ -1,0 +1,25 @@
+In the default build setup, there's a bit of an issue with the system libpng. It doesn't throw any errors during the build, but when trying to import into python it will break. To get around this, I followed the advice here: https://github.com/davisking/dlib/issues/220
+
+Basically, in dlib/CMakelist.txt take out the option to use the system libpng, and force it to always use the libpng included in dlib/external. It can then be built as usual.
+
+ml gcc
+ml python/2.7.14-anaconda5.0.1
+
+git clone https://github.com/davisking/dlib
+cd dlib/dlib
+in CMakeLists.txt: search for PNG_FOUND and edit the if/else to always use external/libpng instead of the system version, for example:
+
+if (PNG_FOUND AND LIBPNG_IS_GOOD OR 1)
+	#   include_directories(${PNG_INCLUDE_DIR})
+	#   set (dlib_needed_libraries ${dlib_needed_libraries} ${PNG_LIBRARIES})
+	#   set(REQUIRES_LIBS " libpng")
+	#else()
+	# If we can't find libpng then statically compile it in.
+
+cd ..
+mkdir build
+cd build
+cmake ..
+cmake --build .
+cd ..
+python setup.py install --prefix=~/.local/
